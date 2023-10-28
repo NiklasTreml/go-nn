@@ -22,15 +22,15 @@ func NewActivation(activation ActivationFn, activationPrime ActivationFnPrime) *
 }
 
 func (a *Activation) Forward(input *mat.Dense) *mat.Dense {
-	a.input = input
+	a.input = mat.DenseCopyOf(input)
 	a.output = a.activation(input)
 
 	return a.output
 }
 
 func (a *Activation) Backward(outputError *mat.Dense, alpha float64) *mat.Dense {
-	res := a.activationPrime(outputError)
-	res.Mul(res, outputError)
+	res := a.activationPrime(a.input)
+	res.MulElem(res, outputError)
 
 	return res
 }

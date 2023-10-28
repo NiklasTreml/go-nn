@@ -33,7 +33,7 @@ func (nn *NeuralNet) Predict(inputs []*mat.Dense) []*mat.Dense {
 	results := []*mat.Dense{}
 
 	for _, input := range inputs {
-		output := input
+		output := mat.DenseCopyOf(input)
 		for _, layer := range nn.layers {
 
 			output = layer.Forward(output)
@@ -48,26 +48,26 @@ func (nn *NeuralNet) Train(xTrain, yTrain []*mat.Dense, epochs int, alpha float6
 	for epoch := 0; epoch < epochs; epoch++ {
 		displayError := 0.0
 
-		for _, input := range xTrain {
+		for iX, input := range xTrain {
 			output := input
 			for _, layer := range nn.layers {
-
 				output = layer.Forward(output)
 			}
 
-			displayError += nn.loss(yTrain[0], output)
+			displayError += nn.loss(output, yTrain[iX])
 
 			// backprop
-			errorPrime := nn.lossPrime(yTrain[0], output)
+			errorPrime := nn.lossPrime(output, yTrain[iX])
 
 			for i := len(nn.layers) - 1; i >= 0; i-- {
 				errorPrime = nn.layers[i].Backward(errorPrime, alpha)
 			}
 		}
 
-		displayError /= float64(len(xTrain))
-
-		fmt.Printf("Epoch %d/%d Error=%.4f\n", epoch+1, epochs, displayError)
+		if epoch%100 == 0 {
+			displayError /= float64(len(xTrain))
+			fmt.Printf("Epoch %d/%d Error=%f\n", epoch+1, epochs, displayError)
+		}
 	}
 
 }

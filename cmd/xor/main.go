@@ -12,34 +12,19 @@ import (
 
 func main() {
 	// xor training data
-	xTrain := [][]float64{
-		{0, 0},
-		{0, 1},
-		{1, 0},
-		{1, 1},
+	xTrain := []*mat.Dense{
+		mat.NewDense(1, 2, []float64{0, 0}),
+		mat.NewDense(1, 2, []float64{0, 1}),
+		mat.NewDense(1, 2, []float64{1, 0}),
+		mat.NewDense(1, 2, []float64{1, 1}),
+	}
+	yTrain := []*mat.Dense{
+		mat.NewDense(1, 1, []float64{0}),
+		mat.NewDense(1, 1, []float64{1}),
+		mat.NewDense(1, 1, []float64{1}),
+		mat.NewDense(1, 1, []float64{0}),
 	}
 
-	yTrain := [][]float64{
-		{0},
-		{1},
-		{1},
-		{0},
-	}
-
-	// as mat.Dense
-	xTrainMat := []*mat.Dense{
-		mat.NewDense(1, 2, xTrain[0]),
-		mat.NewDense(1, 2, xTrain[1]),
-		mat.NewDense(1, 2, xTrain[2]),
-		mat.NewDense(1, 2, xTrain[3]),
-	}
-
-	yTrainMat := []*mat.Dense{
-		mat.NewDense(1, 1, yTrain[0]),
-		mat.NewDense(1, 1, yTrain[1]),
-		mat.NewDense(1, 1, yTrain[2]),
-		mat.NewDense(1, 1, yTrain[3]),
-	}
 	net := network.NewNeuralNet()
 	net.Add(layers.NewDense(2, 3))
 	net.Add(layers.NewActivation(activations.Tanh, activations.TanhPrime))
@@ -48,8 +33,10 @@ func main() {
 
 	net.Use(loss.MeanSquaredError, loss.MeanSquaredErrorPrime)
 
-	net.Train(xTrainMat, yTrainMat, 10000, 0.1)
+	net.Train(xTrain, yTrain, 1000, 0.1)
 
-	out := net.Predict(xTrainMat)
-	fmt.Println(out)
+	out := net.Predict(xTrain)
+	for i, x := range out {
+		fmt.Printf("Input [%v, %v] -> Y_True: %v Y_Pred: %v\n", xTrain[i].At(0, 0), xTrain[i].At(0, 1), yTrain[i].At(0, 0), x.At(0, 0))
+	}
 }

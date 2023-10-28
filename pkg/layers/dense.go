@@ -18,41 +18,36 @@ func NewDense(inputSize int, outputSize int) *Dense {
 
 	layer := &Dense{
 		weights: mat.NewDense(inputSize, outputSize, util.RandomData(inputSize*outputSize)),
-		input:   mat.NewDense(inputSize, outputSize, util.RandomData(inputSize*outputSize)),
-		bias:    mat.NewDense(1, inputSize, util.RandomData(inputSize)),
-		output:  mat.NewDense(1, outputSize, nil),
+		bias:    mat.NewDense(1, outputSize, util.RandomData(outputSize)),
+		input:   new(mat.Dense),
+		output:  new(mat.Dense),
 	}
 
 	return layer
 }
 
 func (d *Dense) Forward(input *mat.Dense) *mat.Dense {
-	// Y = XW + B
-	d.input = input
-	d.output.Mul(d.input, d.weights)
-	d.output.Add(d.input, d.bias)
+	d.input = mat.DenseCopyOf(input)
 
-	return d.output
+	output := new(mat.Dense)
+	output.Mul(input, d.weights)
+	output.Add(output, d.bias)
+	d.output = mat.DenseCopyOf(output)
+
+	return output
 }
 
 func (d *Dense) Backward(outputError *mat.Dense, alpha float64) *mat.Dense {
-	// Computes dE/dW for the outputError=dE/dY. Returns dE/dX
-	inputError := mat.NewDense(1, 1, nil)
-	weightsError := mat.NewDense(1, 1, nil)
-
-	// dE/dX = dE/dY * W^T
+	inputError := new(mat.Dense)
 	inputError.Mul(outputError, d.weights.T())
-	// dE/dW = X^T * dE/dY
+
+	weightsError := new(mat.Dense)
 	weightsError.Mul(d.input.T(), outputError)
 
-	// Update parameters
-	// scale the weights and output error with the learning rate
 	weightsError.Scale(alpha, weightsError)
-	outputError.Scale(alpha, outputError)
-
-	// d.weights = d.weights - alpha * weightsError
 	d.weights.Sub(d.weights, weightsError)
-	// d.bias = d.bias - alpha * outputError
+
+	outputError.Scale(alpha, outputError)
 	d.bias.Sub(d.bias, outputError)
 
 	return inputError
