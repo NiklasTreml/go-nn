@@ -44,7 +44,8 @@ func (nn *NeuralNet) Predict(inputs []*mat.Dense) []*mat.Dense {
 	return results
 }
 
-func (nn *NeuralNet) Train(xTrain, yTrain []*mat.Dense, epochs int, alpha float64) {
+func (nn *NeuralNet) Train(xTrain, yTrain []*mat.Dense, epochs int, alpha float64) []float64 {
+	errorOverEpochs := []float64{}
 	for epoch := 0; epoch < epochs; epoch++ {
 		displayError := 0.0
 
@@ -64,10 +65,12 @@ func (nn *NeuralNet) Train(xTrain, yTrain []*mat.Dense, epochs int, alpha float6
 			}
 		}
 
-		if epoch%100 == 0 {
-			displayError /= float64(len(xTrain))
-			fmt.Printf("Epoch %d/%d Error=%f\n", epoch+1, epochs, displayError)
-		}
+		displayError /= float64(len(xTrain))
+		fmt.Printf("Epoch %d/%d Error=%f\r", epoch+1, epochs, displayError)
+		errorOverEpochs = append(errorOverEpochs, displayError)
 	}
+	fmt.Printf("\n")
+
+	return errorOverEpochs
 
 }
