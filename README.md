@@ -27,15 +27,11 @@ To create and train a neural network, follow these steps:
     ```go
     import (
         "fmt"
-        "image/color"
         "github.com/NiklasTreml/go-nn/pkg/activations"
         "github.com/NiklasTreml/go-nn/pkg/layers"
         "github.com/NiklasTreml/go-nn/pkg/loss"
         "github.com/NiklasTreml/go-nn/pkg/network"
         "gonum.org/v1/gonum/mat"
-        "gonum.org/v1/plot"
-        "gonum.org/v1/plot/plotter"
-        "gonum.org/v1/plot/vg"
     )
     ```
 
@@ -68,9 +64,6 @@ To create and train a neural network, follow these steps:
 
     net.Use(loss.MeanSquaredError, loss.MeanSquaredErrorPrime)
 
-    errorOverEpochs := net.Train(xTrain, yTrain, 500, 0.1)
-    visualizeError(errorOverEpochs)
-
     out := net.Predict(xTrain)
     for i, x := range out {
         fmt.Printf("Input [%v, %v] -> Y_True: %v Y_Pred: %v\n", xTrain[i].At(0, 0), xTrain[i].At(0, 1), yTrain[i].At(0, 0), x.At(0, 0))
@@ -86,7 +79,7 @@ To create and train a neural network, follow these steps:
     // ...
     ```
 
-For a more detailed understanding, refer to the example provided in the `main` package.
+For a more detailed understanding, refer to the examples provided [here](/cmd/).
 
 ## Contribution 🤝
 
